@@ -1,0 +1,63 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: P&C Document Digitization - S3 Buckets for Input, Output, and Lambda Code
+
+Parameters:
+  InputBucketName:
+    Type: String
+    Default: pnc-doc-input-bucket
+    Description: Name of the S3 bucket to upload scanned P&C documents
+
+  OutputBucketName:
+    Type: String
+    Default: pnc-doc-output-bucket
+    Description: Name of the S3 bucket to store NLP output JSON
+
+  LambdaCodeBucketName:
+    Type: String
+    Default: pnc-lambda-code-bucket
+    Description: Name of the S3 bucket to store Lambda deployment zip packages
+
+Resources:
+  InputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref InputBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  OutputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref OutputBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  LambdaCodeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref LambdaCodeBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+Outputs:
+  InputBucketName:
+    Description: Name of the input bucket
+    Value: !Ref InputBucket
+
+  OutputBucketName:
+    Description: Name of the output bucket
+    Value: !Ref OutputBucket
+
+  LambdaCodeBucketName:
+    Description: Name of the Lambda code bucket
+    Value: !Ref LambdaCodeBucket
