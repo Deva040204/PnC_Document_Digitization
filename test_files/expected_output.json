@@ -1,0 +1,12 @@
+{
+  "policy_number": "PNC123456",
+  "vendor": "ABC Insurance",
+  "date": "2023-08-15",
+  "loan_id": "LN987654",
+  "entities": [
+    {"entity_group": "ORG", "word": "ABC Insurance"},
+    {"entity_group": "DATE", "word": "2023-08-15"},
+    {"entity_group": "MISC", "word": "PNC123456"},
+    {"entity_group": "MISC", "word": "LN987654"}
+  ]
+}

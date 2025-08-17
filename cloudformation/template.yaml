@@ -1,0 +1,92 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: P&C Document Digitization - Textract & SageMaker Real-time Pipeline
+
+Parameters:
+  S3InputBucketName:
+    Type: String
+    Description: Name of the input S3 bucket for PDF uploads
+  S3OutputBucketName:
+    Type: String
+    Description: Name of the output S3 bucket for storing extracted data
+  SageMakerEndpointName:
+    Type: String
+    Description: SageMaker endpoint name for NLP processing
+
+Resources:
+
+  TextractTriggerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TextractTriggerPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - textract:StartDocumentTextDetection
+                  - sns:Publish
+                  - logs:*
+                Resource: "*"
+
+  TextractProcessorLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TextractProcessorPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - textract:GetDocumentTextDetection
+                  - s3:PutObject
+                  - s3:GetObject
+                  - logs:*
+                  - sagemaker:InvokeEndpoint
+                Resource: "*"
+
+  TextractTriggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: TextractTriggerLambda
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt TextractTriggerLambdaRole.Arn
+      Code:
+        S3Bucket: PLACEHOLDER_BUCKET_NAME
+        S3Key: lambda/upload_trigger.zip
+      Timeout: 60
+
+  TextractProcessorLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: TextractProcessorLambda
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt TextractProcessorLambdaRole.Arn
+      Code:
+        S3Bucket: PLACEHOLDER_BUCKET_NAME
+        S3Key: lambda/textract_processor.zip
+      Timeout: 120
+
+Outputs:
+  TriggerLambda:
+    Value: !Ref TextractTriggerLambda
+  ProcessorLambda:
+    Value: !Ref TextractProcessorLambda
